@@ -84,8 +84,23 @@ public class Mp3Id3tagWriter {
 			if(!id3v2Object.get_comment_id3v2().equals(""))textFramesTagsDataByteStream.write(getTogetherTextFrame("COMM",id3v2Object.get_comment_id3v2().getBytes("utf8")));
 			
 			ByteArrayOutputStream tagsDataByteStream = new ByteArrayOutputStream();
-			byte[] lengthDataArray = intToByteArray(textFramesTagsDataByteStream.size());
 			
+			byte[] attachedPictureBytes = null;
+			byte[] lengthDataArray = null;
+			if(id3v2Object.get_attachedpicture_id3v2() != null)
+			{
+				writetolog("if(id3v2Object.get_attachedpicture_id3v2() != null)");
+				attachedPictureBytes = getTogetherPicFrame(id3v2Object.get_attachedpicture_id3v2());
+			}
+			if(attachedPictureBytes != null)
+			{
+				lengthDataArray = intToByteArray(textFramesTagsDataByteStream.size()+attachedPictureBytes.length);
+			}
+			else
+			{
+				lengthDataArray = intToByteArray(textFramesTagsDataByteStream.size());
+			}
+
 			headerData[4] = 4; // tags version - the 4th byte/ we have tags version 2.4
 			headerData[6] = (lengthDataArray[0] == 0) ? 0 : lengthDataArray[0];
 			headerData[7] = (lengthDataArray[1] == 0) ? 0 : lengthDataArray[1];
@@ -94,11 +109,9 @@ public class Mp3Id3tagWriter {
 			tagsDataByteStream.write(headerData);
 			// ================= write  the whole bunch of bytes (header + frames)
 			tagsDataByteStream.write(textFramesTagsDataByteStream.toByteArray()); 
+			if(attachedPictureBytes != null)tagsDataByteStream.write(attachedPictureBytes); 
 			// ================= getTogetherPicFrame
-			if(id3v2Object.get_attachedpicture_id3v2() != null)
-			{
-				tagsDataByteStream.write(getTogetherPicFrame(id3v2Object.get_attachedpicture_id3v2()));
-			}
+
 			writeNewId3v2Tags(pathToFile,tagsDataByteStream.toByteArray());
 		}
 	}
@@ -135,28 +148,29 @@ public class Mp3Id3tagWriter {
 		int encodingType = 3;
 		String mimeType = "image/jpeg"; // set one 0x00 after
 		int picType = 6;
-		String description = "Album cover";  // set one 0x00 after
+		String description = "";  // set one 0x00 after
 		
 		frameDataByteStream.write(encodingType);
 		try {
 			frameDataByteStream.write(mimeType.getBytes("utf8"));
-			frameDataByteStream.write(0);
+			frameDataByteStream.write(0x00);
 			frameDataByteStream.write(picType);
 			frameDataByteStream.write(description.getBytes("utf8"));
-			frameDataByteStream.write(0);
+			frameDataByteStream.write(0x00);
 			frameDataByteStream.write(imageData);
 			int frameSize = frameDataByteStream.toByteArray().length;
 			frameHeaderDataByteStream.write(new String("APIC").getBytes("utf8"));
 			frameHeaderDataByteStream.write(intToByteArray(frameSize));
-			frameHeaderDataByteStream.write(0);
-			frameHeaderDataByteStream.write(0);
+			frameHeaderDataByteStream.write(0x00);
+			frameHeaderDataByteStream.write(0x00);
+			
 			frameHeaderDataByteStream.write(frameDataByteStream.toByteArray());
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return frameDataByteStream.toByteArray();
+		return frameHeaderDataByteStream.toByteArray();
 	}
 	
 	private void deleteOldId3v2Tags(String pathToFile,int tagsSize) throws FileNotFoundException

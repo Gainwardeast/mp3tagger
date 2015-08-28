@@ -346,7 +346,7 @@ public class Mp3Id3tagParser {
                 if(debugMode)System.out.println("description " + description );
                 int imCount = bytes_attached_picture.length - refPoint;
                 byte[] new_attached_picture_bytes = new byte[imCount];
-                new_attached_picture_bytes = Arrays.copyOfRange(bytes_attached_picture, refPoint , bytes_attached_picture.length -1 );
+                new_attached_picture_bytes = Arrays.copyOfRange(bytes_attached_picture, refPoint , bytes_attached_picture.length);
                 local_object.set_attachedpicture_id3v2(new_attached_picture_bytes);
 			}
 			cycle_position += framesize + ID3FrameSize;

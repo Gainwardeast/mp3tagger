@@ -30,7 +30,7 @@ public class Mp3TagsFactory {
 	
 	public void readTags(File target_file,boolean readAttachedPicture)
 	{
-		Mp3Id3tagParser parser = new Mp3Id3tagParser(target_file,false);
+		Mp3Id3tagParser parser = new Mp3Id3tagParser(target_file,true);
 		Mp3Id3tagObjectId3v1 id3v1_object = null;
 		Mp3Id3tagObjectId3v2 id3v2_object = null;
 		try {
