@@ -1,6 +1,9 @@
 # mp3tagger
 Open source library for reading id3 version 1 and 2 tags from .mp3 files
 
+First do not forget to add universal char detector library created by mozilla.
+Take it from "dependencies" folder
+
 You can get access to tags doing this
 
 ```
